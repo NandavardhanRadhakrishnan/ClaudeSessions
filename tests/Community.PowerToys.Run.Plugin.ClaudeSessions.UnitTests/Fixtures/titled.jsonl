@@ -1,0 +1,9 @@
+{"type":"permission-mode","permissionMode":"auto","sessionId":"11111111-1111-1111-1111-111111111111"}
+{"parentUuid":null,"type":"user","message":{"role":"user","content":"fix the login bug please"},"uuid":"a","cwd":"C:\\code\\acme-api","sessionId":"11111111-1111-1111-1111-111111111111"}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"ok"}]},"cwd":"C:\\code\\acme-api"}
+{"type":"ai-title","aiTitle":"Old AI title","sessionId":"11111111-1111-1111-1111-111111111111"}
+{"type":"agent-name","agentName":"first agent name","sessionId":"11111111-1111-1111-1111-111111111111"}
+{"type":"custom-title","customTitle":"First custom","sessionId":"11111111-1111-1111-1111-111111111111"}
+{"type":"user","message":{"role":"user","content":"second prompt"},"cwd":"C:\\code\\acme-api"}
+{"type":"custom-title","customTitle":"Fix login bug","sessionId":"11111111-1111-1111-1111-111111111111"}
+{"type":"ai-title","aiTitle":"Newer AI title","sessionId":"11111111-1111-1111-1111-111111111111"}

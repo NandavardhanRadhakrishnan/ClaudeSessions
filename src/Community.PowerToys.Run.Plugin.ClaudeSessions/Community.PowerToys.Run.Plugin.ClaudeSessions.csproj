@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <UseWPF>true</UseWPF>
+    <Platforms>x64;ARM64</Platforms>
+    <AssemblyName>Community.PowerToys.Run.Plugin.ClaudeSessions</AssemblyName>
+    <RootNamespace>Community.PowerToys.Run.Plugin.ClaudeSessions</RootNamespace>
+    <Version>0.1.0</Version>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <!-- An ARM64 build compiles against the x64 PowerToys install; the ARM64 install supplies its own copies at runtime. -->
+    <NoWarn>$(NoWarn);CS8012</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Community.PowerToys.Run.Plugin.ClaudeSessions.UnitTests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Wox.Plugin">
+      <HintPath>$(PowerToysDir)\Wox.Plugin.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Wox.Infrastructure">
+      <HintPath>$(PowerToysDir)\Wox.Infrastructure.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="PowerToys.Settings.UI.Lib">
+      <HintPath>$(PowerToysDir)\PowerToys.Settings.UI.Lib.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="PowerToys.ManagedCommon">
+      <HintPath>$(PowerToysDir)\PowerToys.ManagedCommon.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="PowerToys.Common.UI">
+      <HintPath>$(PowerToysDir)\PowerToys.Common.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="plugin.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Images\*.png" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx" LogicalName="Community.PowerToys.Run.Plugin.ClaudeSessions.Properties.Resources.resources" />
+  </ItemGroup>
+
+</Project>
