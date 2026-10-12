@@ -1,0 +1,4 @@
+{"type":"user","message":{"role":"user","content":"broken
+this is not json "type":"user" at all
+{"type":"user","message":{"role":"user","content":"valid prompt"},"cwd":"C:/code/x/"}
+{"type":"custom-title","customTitle":

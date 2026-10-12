@@ -1,0 +1,4 @@
+{"type":"user","message":{"role":"user","content":"hello"},"cwd":"D:\\work"}
+{"type":"ai-title","aiTitle":"AI title","sessionId":"x"}
+{"type":"agent-name","agentName":"agent one","sessionId":"x"}
+{"type":"agent-name","agentName":"agent two","sessionId":"x"}

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="plugin_name" xml:space="preserve">
+    <value>Claude Sessions</value>
+  </data>
+  <data name="plugin_description" xml:space="preserve">
+    <value>Search Claude Code sessions by name and resume them in Windows Terminal or the Claude desktop app.</value>
+  </data>
+  <data name="time_just_now" xml:space="preserve">
+    <value>just now</value>
+  </data>
+  <data name="time_minutes_ago" xml:space="preserve">
+    <value>{0}m ago</value>
+  </data>
+  <data name="time_hours_ago" xml:space="preserve">
+    <value>{0}h ago</value>
+  </data>
+  <data name="time_days_ago" xml:space="preserve">
+    <value>{0}d ago</value>
+  </data>
+  <data name="subtitle_folder_missing" xml:space="preserve">
+    <value>folder missing</value>
+  </data>
+  <data name="subtitle_no_folder" xml:space="preserve">
+    <value>unknown folder</value>
+  </data>
+  <data name="tooltip_text" xml:space="preserve">
+    <value>Folder: {0}
+Session: {1}
+Prompts: {2}</value>
+  </data>
+  <data name="context_open_in_desktop" xml:space="preserve">
+    <value>Open in Claude desktop app (Ctrl+Enter)</value>
+  </data>
+  <data name="context_open_in_terminal" xml:space="preserve">
+    <value>Open in Terminal (Ctrl+Enter)</value>
+  </data>
+  <data name="context_fork" xml:space="preserve">
+    <value>Fork session in Terminal (Ctrl+Shift+Enter)</value>
+  </data>
+  <data name="context_open_folder" xml:space="preserve">
+    <value>Open folder in Explorer (Ctrl+Shift+F)</value>
+  </data>
+  <data name="context_copy_id" xml:space="preserve">
+    <value>Copy session ID (Ctrl+C)</value>
+  </data>
+  <data name="context_copy_resume" xml:space="preserve">
+    <value>Copy resume command (Ctrl+Shift+C)</value>
+  </data>
+  <data name="msg_folder_missing_title" xml:space="preserve">
+    <value>Folder not found</value>
+  </data>
+  <data name="msg_folder_missing" xml:space="preserve">
+    <value>{0} no longer exists, so the session can't be opened there. The resume command was copied to the clipboard.</value>
+  </data>
+  <data name="msg_desktop_opened_title" xml:space="preserve">
+    <value>Claude opened</value>
+  </data>
+  <data name="msg_desktop_opened" xml:space="preserve">
+    <value>Run /resume and pick '{0}' (session ID copied).</value>
+  </data>
+  <data name="msg_launch_failed" xml:space="preserve">
+    <value>Could not open the session</value>
+  </data>
+  <data name="no_sessions_title" xml:space="preserve">
+    <value>No Claude sessions found</value>
+  </data>
+  <data name="no_sessions_subtitle" xml:space="preserve">
+    <value>Looked in {0}</value>
+  </data>
+  <data name="setting_open_target" xml:space="preserve">
+    <value>Open sessions in</value>
+  </data>
+  <data name="setting_open_target_description" xml:space="preserve">
+    <value>What Enter does. Ctrl+Enter opens the other one.</value>
+  </data>
+  <data name="setting_open_target_terminal" xml:space="preserve">
+    <value>Windows Terminal</value>
+  </data>
+  <data name="setting_open_target_desktop" xml:space="preserve">
+    <value>Claude desktop app</value>
+  </data>
+  <data name="setting_window_mode" xml:space="preserve">
+    <value>Windows Terminal window</value>
+  </data>
+  <data name="setting_window_mode_new_window" xml:space="preserve">
+    <value>New window</value>
+  </data>
+  <data name="setting_window_mode_new_tab" xml:space="preserve">
+    <value>New tab</value>
+  </data>
+  <data name="setting_window_mode_description" xml:space="preserve">
+    <value>New tab opens in the most recently used Terminal window.</value>
+  </data>
+  <data name="setting_terminal_profile" xml:space="preserve">
+    <value>Windows Terminal profile</value>
+  </data>
+  <data name="setting_terminal_profile_description" xml:space="preserve">
+    <value>Profile name used for the new tab. Leave empty for the default profile.</value>
+  </data>
+  <data name="setting_terminal_profile_placeholder" xml:space="preserve">
+    <value>Default profile</value>
+  </data>
+  <data name="setting_extra_args" xml:space="preserve">
+    <value>Extra claude arguments</value>
+  </data>
+  <data name="setting_extra_args_description" xml:space="preserve">
+    <value>Appended to the claude command line.</value>
+  </data>
+  <data name="setting_hide_empty" xml:space="preserve">
+    <value>Hide sessions with no prompts</value>
+  </data>
+  <data name="setting_max_age_days" xml:space="preserve">
+    <value>Hide sessions older than (days)</value>
+  </data>
+  <data name="setting_max_age_days_description" xml:space="preserve">
+    <value>0 shows every session.</value>
+  </data>
+  <data name="setting_max_results" xml:space="preserve">
+    <value>Maximum results</value>
+  </data>
+</root>

@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <!-- PowerToys 0.99 has no matching Community.PowerToys.Run.Plugin.Dependencies package,
+         so the PowerToys assemblies are referenced straight from the install. Override with
+         -p:PowerToysDir=... for a per-user install or another location. -->
+    <PowerToysDir Condition="'$(PowerToysDir)' == '' and Exists('$(ProgramW6432)\PowerToys\Wox.Plugin.dll')">$(ProgramW6432)\PowerToys</PowerToysDir>
+    <PowerToysDir Condition="'$(PowerToysDir)' == ''">$(LOCALAPPDATA)\PowerToys</PowerToysDir>
+  </PropertyGroup>
+</Project>

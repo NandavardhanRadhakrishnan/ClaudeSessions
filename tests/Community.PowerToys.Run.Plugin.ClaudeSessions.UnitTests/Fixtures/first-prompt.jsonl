@@ -1,0 +1,5 @@
+{"type":"user","isMeta":true,"message":{"role":"user","content":"Caveat: meta message"},"cwd":"/c/code/proj"}
+{"type":"user","message":{"role":"user","content":"<command-name>/clear</command-name>"},"cwd":"/c/code/proj"}
+{"type":"user","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"t","content":"tool output"}]},"cwd":"/c/code/proj"}
+{"type":"user","message":{"role":"user","content":"   Refactor   the\n  payment module so that it uses the new gateway client and also update every test that touches it accordingly  "},"cwd":"/c/code/proj"}
+{"type":"user","message":{"role":"user","content":"another real prompt"},"cwd":"/c/code/proj"}

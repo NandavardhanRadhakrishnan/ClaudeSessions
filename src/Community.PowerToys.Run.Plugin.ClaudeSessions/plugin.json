@@ -1,0 +1,13 @@
+{
+  "ID": "08BED641FE144D12A24B804626640F06",
+  "ActionKeyword": "cc",
+  "IsGlobal": false,
+  "Name": "Claude Sessions",
+  "Author": "NandavardhanRadhakrishnan",
+  "Version": "0.1.0",
+  "Language": "csharp",
+  "Website": "https://github.com/NandavardhanRadhakrishnan/ClaudeSessions",
+  "ExecuteFileName": "Community.PowerToys.Run.Plugin.ClaudeSessions.dll",
+  "IcoPathDark": "Images\\sessions.dark.png",
+  "IcoPathLight": "Images\\sessions.light.png"
+}
