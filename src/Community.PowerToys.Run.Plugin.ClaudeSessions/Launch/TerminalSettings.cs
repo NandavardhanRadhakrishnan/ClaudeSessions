@@ -30,27 +30,70 @@ internal static class TerminalSettings
         return File.Exists(alias) ? alias : "wt.exe";
     }
 
-    /// <summary>Gets a value indicating whether the profile Windows Terminal would use is set to run elevated.</summary>
-    /// <param name="profileName">Profile name or GUID passed with <c>-p</c>; empty for the default profile.</param>
-    public static bool ProfileRequiresElevation(string profileName)
+    // Built-in profiles that carry no "commandline" in settings.json.
+    private const string CommandPromptGuid = "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}";
+    private const string WindowsPowerShellGuid = "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}";
+    private const string PowerShellCoreSource = "Windows.Terminal.PowershellCore";
+
+    /// <summary>Contents of Windows Terminal's settings.json, or <c>null</c> if it can't be found or read.</summary>
+    public static string? ReadSettings()
     {
         var path = FindSettingsFile();
         if (path == null)
         {
-            return false;
+            return null;
         }
 
         try
         {
-            return ProfileRequiresElevation(File.ReadAllText(path), profileName);
+            return File.ReadAllText(path);
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
-            return false;
+            return null;
         }
     }
 
-    public static bool ProfileRequiresElevation(string settingsJson, string profileName)
+    /// <summary>Gets a value indicating whether the profile Windows Terminal would use is set to run elevated.</summary>
+    /// <param name="profileName">Profile name or GUID passed with <c>-p</c>; empty for the default profile.</param>
+    public static bool ProfileRequiresElevation(string settingsJson, string profileName) =>
+        Inspect(settingsJson, profileName, false, (profile, defaults) => GetBool(profile) ?? GetBool(defaults) ?? false);
+
+    /// <summary>
+    /// The shell the profile runs, used to host Claude so the tab survives <c>/exit</c>. Profiles that run something
+    /// else (WSL, Git Bash, ...) get <c>cmd</c>, since the plugin replaces their command line anyway.
+    /// </summary>
+    public static TerminalShell ProfileShell(string settingsJson, string profileName) =>
+        Inspect(settingsJson, profileName, TerminalShell.Cmd, (profile, defaults) =>
+        {
+            var commandLine = (GetString(profile, "commandline") ?? GetString(defaults, "commandline") ?? string.Empty).ToLowerInvariant();
+            if (commandLine.Contains("pwsh", StringComparison.Ordinal))
+            {
+                return TerminalShell.PowerShellCore;
+            }
+
+            if (commandLine.Contains("powershell", StringComparison.Ordinal))
+            {
+                return TerminalShell.WindowsPowerShell;
+            }
+
+            if (commandLine.Length > 0)
+            {
+                return TerminalShell.Cmd;
+            }
+
+            if (string.Equals(GetString(profile, "source"), PowerShellCoreSource, StringComparison.OrdinalIgnoreCase))
+            {
+                return TerminalShell.PowerShellCore;
+            }
+
+            return string.Equals(GetString(profile, "guid"), WindowsPowerShellGuid, StringComparison.OrdinalIgnoreCase)
+                ? TerminalShell.WindowsPowerShell
+                : TerminalShell.Cmd;
+        });
+
+    /// <summary>Finds the profile Windows Terminal would use and hands it, with the profile defaults, to <paramref name="pick"/>.</summary>
+    private static T Inspect<T>(string settingsJson, string profileName, T fallback, Func<JsonElement?, JsonElement?, T> pick)
     {
         try
         {
@@ -58,7 +101,7 @@ internal static class TerminalSettings
             var root = doc.RootElement;
             if (root.ValueKind != JsonValueKind.Object || !root.TryGetProperty("profiles", out var profiles))
             {
-                return false;
+                return fallback;
             }
 
             // "profiles" is either a plain list or { "defaults": {...}, "list": [...] }.
@@ -70,7 +113,7 @@ internal static class TerminalSettings
                 list = profiles.TryGetProperty("list", out var l) ? l : default;
             }
 
-            var wanted = profileName.Length > 0 ? profileName : GetString(root, "defaultProfile") ?? string.Empty;
+            var wanted = profileName.Length > 0 ? profileName : GetString(root, "defaultProfile") ?? CommandPromptGuid;
             var profile = list.ValueKind == JsonValueKind.Array
                 ? list.EnumerateArray().Cast<JsonElement?>().FirstOrDefault(p =>
                     p!.Value.ValueKind == JsonValueKind.Object
@@ -78,11 +121,11 @@ internal static class TerminalSettings
                         || string.Equals(GetString(p.Value, "guid"), wanted, StringComparison.OrdinalIgnoreCase)))
                 : null;
 
-            return GetBool(profile) ?? GetBool(defaults) ?? false;
+            return pick(profile, defaults);
         }
         catch (JsonException)
         {
-            return false;
+            return fallback;
         }
     }
 
@@ -103,6 +146,6 @@ internal static class TerminalSettings
             ? v.GetBoolean()
             : null;
 
-    private static string? GetString(JsonElement element, string name) =>
-        element.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
+    private static string? GetString(JsonElement? element, string name) =>
+        element is { ValueKind: JsonValueKind.Object } e && e.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
 }

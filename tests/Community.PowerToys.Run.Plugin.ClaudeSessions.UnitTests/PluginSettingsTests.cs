@@ -14,6 +14,7 @@ public class PluginSettingsTests
         var s = new PluginSettings();
         Assert.AreEqual(OpenTarget.Terminal, s.OpenTarget);
         Assert.AreEqual(WindowMode.NewWindow, s.WindowMode);
+        Assert.AreEqual(ExitBehavior.StayInShell, s.OnExit);
         Assert.AreEqual(string.Empty, s.TerminalProfile);
         Assert.AreEqual(string.Empty, s.ExtraArgs);
         Assert.IsTrue(s.HideEmpty);
@@ -39,6 +40,7 @@ public class PluginSettingsTests
         var options = PluginSettings.DefaultOptions().ToList();
         options.Single(o => o.Key == "OpenTarget").ComboBoxValue = (int)OpenTarget.Desktop;
         options.Single(o => o.Key == "WindowMode").ComboBoxValue = (int)WindowMode.NewTab;
+        options.Single(o => o.Key == "OnExit").ComboBoxValue = (int)ExitBehavior.CloseTab;
         options.Single(o => o.Key == "TerminalProfile").TextValue = " Ubuntu ";
         options.Single(o => o.Key == "ExtraArgs").TextValue = "--verbose";
         options.Single(o => o.Key == "HideEmpty").Value = false;
@@ -51,6 +53,7 @@ public class PluginSettingsTests
         {
             OpenTarget = OpenTarget.Desktop,
             WindowMode = WindowMode.NewTab,
+            OnExit = ExitBehavior.CloseTab,
             TerminalProfile = "Ubuntu",
             ExtraArgs = "--verbose",
             HideEmpty = false,

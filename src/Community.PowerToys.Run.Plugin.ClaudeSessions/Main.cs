@@ -242,24 +242,32 @@ public class Main : IPlugin, IContextMenu, ISettingProvider, IPluginI18n, IDispo
         }
 
         var settings = _settings;
-        var elevate = TerminalSettings.ProfileRequiresElevation(settings.TerminalProfile);
-        return Start(LaunchCommand.Terminal(session, settings, fork, ClaudeCli.Resolve(), elevate, TerminalSettings.ResolveWtPath()));
+        var terminalSettings = TerminalSettings.ReadSettings();
+        var elevate = terminalSettings != null && TerminalSettings.ProfileRequiresElevation(terminalSettings, settings.TerminalProfile);
+        var shell = settings.OnExit == ExitBehavior.CloseTab
+            ? TerminalShell.None
+            : terminalSettings != null ? TerminalSettings.ProfileShell(terminalSettings, settings.TerminalProfile) : TerminalShell.Cmd;
+
+        return Start(LaunchCommand.Terminal(session, settings, fork, ClaudeCli.Resolve(), elevate, TerminalSettings.ResolveWtPath(), shell));
     }
 
     private bool OpenInDesktop(ClaudeSession session)
     {
-        if (!Start(LaunchCommand.DesktopApp()))
+        // The desktop import only takes its title from a custom-title record; give the transcript one first.
+        var transcript = _api?.GetTranscriptPath(session.Id);
+        if (transcript != null && !TranscriptTitle.IsImportedIntoDesktop(session.Id, TranscriptTitle.DesktopSessionsRoot()))
         {
-            return false;
+            try
+            {
+                TranscriptTitle.EnsureCustomTitle(transcript, session.Id, session.Title);
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                Log.Exception($"Could not add a title to {transcript}", e, GetType());
+            }
         }
 
-        ClipboardHelper.TrySetText(session.Id);
-        _context?.API.ShowMsg(
-            Resources.msg_desktop_opened_title,
-            string.Format(CultureInfo.CurrentCulture, Resources.msg_desktop_opened, session.Title),
-            _iconPath,
-            true);
-        return true;
+        return Start(LaunchCommand.DesktopApp(session));
     }
 
     private bool FolderMissing(ClaudeSession session)

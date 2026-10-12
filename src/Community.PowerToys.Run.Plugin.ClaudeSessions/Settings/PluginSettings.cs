@@ -19,11 +19,21 @@ public enum WindowMode
     NewTab = 1,
 }
 
+public enum ExitBehavior
+{
+    /// <summary>Claude runs inside the profile's shell, so <c>/exit</c> leaves a prompt in the session folder.</summary>
+    StayInShell = 0,
+
+    /// <summary>Claude is the tab's command line, so the tab closes with it.</summary>
+    CloseTab = 1,
+}
+
 /// <summary>Typed view over the plugin's <see cref="PluginAdditionalOption"/> values.</summary>
 public sealed record PluginSettings
 {
     public const string OpenTargetKey = "OpenTarget";
     public const string WindowModeKey = "WindowMode";
+    public const string OnExitKey = "OnExit";
     public const string TerminalProfileKey = "TerminalProfile";
     public const string ExtraArgsKey = "ExtraArgs";
     public const string HideEmptyKey = "HideEmpty";
@@ -36,6 +46,8 @@ public sealed record PluginSettings
     public OpenTarget OpenTarget { get; init; } = OpenTarget.Terminal;
 
     public WindowMode WindowMode { get; init; } = WindowMode.NewWindow;
+
+    public ExitBehavior OnExit { get; init; } = ExitBehavior.StayInShell;
 
     /// <summary>Gets the Windows Terminal profile name; empty means the default profile.</summary>
     public string TerminalProfile { get; init; } = string.Empty;
@@ -77,6 +89,19 @@ public sealed record PluginSettings
                 new(Resources.setting_window_mode_new_tab, ((int)WindowMode.NewTab).ToString(CultureInfo.InvariantCulture)),
             ],
             ComboBoxValue = (int)WindowMode.NewWindow,
+        },
+        new()
+        {
+            Key = OnExitKey,
+            PluginOptionType = PluginAdditionalOption.AdditionalOptionType.Combobox,
+            DisplayLabel = Resources.setting_on_exit,
+            DisplayDescription = Resources.setting_on_exit_description,
+            ComboBoxItems =
+            [
+                new(Resources.setting_on_exit_stay, ((int)ExitBehavior.StayInShell).ToString(CultureInfo.InvariantCulture)),
+                new(Resources.setting_on_exit_close, ((int)ExitBehavior.CloseTab).ToString(CultureInfo.InvariantCulture)),
+            ],
+            ComboBoxValue = (int)ExitBehavior.StayInShell,
         },
         new()
         {
@@ -145,6 +170,9 @@ public sealed record PluginSettings
             WindowMode = byKey.TryGetValue(WindowModeKey, out var mode) && Enum.IsDefined((WindowMode)mode.ComboBoxValue)
                 ? (WindowMode)mode.ComboBoxValue
                 : defaults.WindowMode,
+            OnExit = byKey.TryGetValue(OnExitKey, out var onExit) && Enum.IsDefined((ExitBehavior)onExit.ComboBoxValue)
+                ? (ExitBehavior)onExit.ComboBoxValue
+                : defaults.OnExit,
             TerminalProfile = byKey.TryGetValue(TerminalProfileKey, out var profile) ? profile.TextValue?.Trim() ?? string.Empty : defaults.TerminalProfile,
             ExtraArgs = byKey.TryGetValue(ExtraArgsKey, out var extra) ? extra.TextValue?.Trim() ?? string.Empty : defaults.ExtraArgs,
             HideEmpty = byKey.TryGetValue(HideEmptyKey, out var hide) ? hide.Value : defaults.HideEmpty,

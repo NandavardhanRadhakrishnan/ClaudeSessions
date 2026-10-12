@@ -40,9 +40,12 @@ auto-generated title, else the first prompt.
 (`"elevate": true`), the plugin starts Windows Terminal elevated itself; a non-elevated launch of an
 elevated profile makes Terminal mangle the command line. Expect a UAC prompt if your UAC settings ask for one.
 
-**Desktop target:** the Claude desktop app has no link that opens a specific CLI session, so the
-plugin opens the app, copies the session ID to the clipboard and tells you to run `/resume` and
-pick the session.
+**Desktop target:** opens `claude://resume?session=<id>`, which makes the Claude desktop app import
+the CLI session into its Code tab (the same thing its own resume picker does) and open it. A
+session already imported is just opened. The desktop app refuses sessions that are still running
+in a terminal. The import only reads a session's name from a `/rename` (`custom-title`) record, so
+before importing, the plugin appends one with the title you see in Run (only if the transcript has
+none and the desktop app hasn't imported the session yet).
 
 ## Settings
 
@@ -52,6 +55,7 @@ PowerToys Settings → PowerToys Run → Plugins → Claude Sessions.
 |---|---|---|
 | Open sessions in | Windows Terminal | What Enter does |
 | Windows Terminal window | New window | Or a new tab in the most recent window |
+| When Claude exits | Stay in shell | Claude runs inside the profile's shell (cmd / PowerShell), so `/exit` leaves a prompt in the session folder. *Close tab* runs Claude as the tab's only program |
 | Windows Terminal profile | *(default profile)* | Profile name for the new tab |
 | Extra claude arguments | *(none)* | e.g. `--dangerously-skip-permissions` |
 | Hide sessions with no prompts | On | Also hides SDK/automation sessions |

@@ -96,6 +96,15 @@ public sealed class SessionsApi
         }
     }
 
+    /// <summary>Path of the transcript a session was read from, or <c>null</c> if it isn't known.</summary>
+    public string? GetTranscriptPath(string sessionId)
+    {
+        lock (_lock)
+        {
+            return _entries.Values.FirstOrDefault(e => string.Equals(e.Session.Id, sessionId, StringComparison.OrdinalIgnoreCase))?.Path;
+        }
+    }
+
     /// <summary>Brings <see cref="_entries"/> up to date with the disk. Returns whether anything changed.</summary>
     private bool Refresh()
     {

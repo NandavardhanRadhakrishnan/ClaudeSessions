@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.Text;
 using Community.PowerToys.Run.Plugin.ClaudeSessions.Sessions;
@@ -9,13 +10,22 @@ namespace Community.PowerToys.Run.Plugin.ClaudeSessions.Launch;
 public static class LaunchCommand
 {
     /// <summary>
-    /// <c>wt.exe &lt;window&gt; [-p "&lt;profile&gt;"] -d "&lt;cwd&gt;" --title "&lt;title&gt;" claude --resume &lt;id&gt; [--fork-session] [&lt;extra args&gt;]</c>.
-    /// <c>claude</c> is the tab's command line, so the tab closes per the profile's <c>closeOnExit</c>.
+    /// <c>wt.exe &lt;window&gt; [-p "&lt;profile&gt;"] -d "&lt;cwd&gt;" --title "&lt;title&gt;" &lt;tab command&gt;</c>, where the tab
+    /// command is <c>claude --resume &lt;id&gt; [--fork-session] [&lt;extra args&gt;]</c>, either run directly (the tab
+    /// closes with Claude) or inside <paramref name="shell"/> so the tab stays at a prompt after <c>/exit</c>.
     /// </summary>
     /// <param name="claudeCommand">Path or name of the Claude CLI; quoted if it contains spaces.</param>
     /// <param name="elevate">Start <c>wt.exe</c> elevated, for profiles set to run as administrator (see <see cref="TerminalSettings"/>).</param>
     /// <param name="wtPath">Path to <c>wt.exe</c>; see <see cref="TerminalSettings.ResolveWtPath"/>.</param>
-    public static ProcessStartInfo Terminal(ClaudeSession session, PluginSettings settings, bool fork, string claudeCommand = "claude", bool elevate = false, string wtPath = "wt.exe")
+    /// <param name="shell">Shell that hosts Claude; <see cref="TerminalShell.None"/> runs Claude as the tab's command line.</param>
+    public static ProcessStartInfo Terminal(
+        ClaudeSession session,
+        PluginSettings settings,
+        bool fork,
+        string claudeCommand = "claude",
+        bool elevate = false,
+        string wtPath = "wt.exe",
+        TerminalShell shell = TerminalShell.None)
     {
         var args = new StringBuilder(settings.WindowMode == WindowMode.NewTab ? "-w 0 nt" : "-w new");
 
@@ -26,17 +36,30 @@ public static class LaunchCommand
 
         args.Append(" -d ").Append(Quote(session.Cwd));
         args.Append(" --title ").Append(Quote(EscapeForWt(session.Title.Replace("\"", string.Empty))));
-        args.Append(' ').Append(claudeCommand.Contains(' ') ? Quote(claudeCommand) : claudeCommand);
-        args.Append(" --resume ").Append(session.Id);
 
-        if (fork)
-        {
-            args.Append(" --fork-session");
-        }
+        var claudeArgs = $"--resume {session.Id}" + (fork ? " --fork-session" : string.Empty);
+        var extraArgs = settings.ExtraArgs.Trim();
 
-        if (!string.IsNullOrWhiteSpace(settings.ExtraArgs))
+        switch (shell)
         {
-            args.Append(' ').Append(EscapeForWt(settings.ExtraArgs.Trim()));
+            case TerminalShell.WindowsPowerShell or TerminalShell.PowerShellCore:
+                // Encoded, so neither wt nor argv quoting touches the command; extra args use PowerShell syntax.
+                var command = $"& '{claudeCommand.Replace("'", "''")}' {claudeArgs}" + (extraArgs.Length > 0 ? " " + extraArgs : string.Empty);
+                args.Append(shell == TerminalShell.PowerShellCore ? " pwsh.exe" : " powershell.exe")
+                    .Append(" -NoExit -EncodedCommand ")
+                    .Append(Convert.ToBase64String(Encoding.Unicode.GetBytes(command)));
+                break;
+
+            case TerminalShell.Cmd:
+                // cmd /k mangles a quoted program path followed by more quotes; cmd finds "claude" on PATH.
+                args.Append(" cmd.exe /k ").Append(claudeCommand.Contains(' ') ? "claude" : claudeCommand);
+                AppendClaudeArgs(args, claudeArgs, extraArgs);
+                break;
+
+            default:
+                args.Append(' ').Append(claudeCommand.Contains(' ') ? Quote(claudeCommand) : claudeCommand);
+                AppendClaudeArgs(args, claudeArgs, extraArgs);
+                break;
         }
 
         var startInfo = new ProcessStartInfo(wtPath, args.ToString()) { UseShellExecute = true };
@@ -49,15 +72,25 @@ public static class LaunchCommand
     }
 
     /// <summary>
-    /// Opens the Claude desktop app. It has no deep link for a CLI session (its <c>claude://…/project/…</c>
-    /// route only takes cloud project IDs), so the caller copies the session ID for <c>/resume</c>.
+    /// Opens the session in the Claude desktop app's Code tab. <c>claude://resume?session=&lt;id&gt;</c> imports the CLI
+    /// session as a desktop session (or opens the one that already owns it), the same path as the app's resume picker.
     /// </summary>
-    public static ProcessStartInfo DesktopApp() => new("claude://") { UseShellExecute = true };
+    public static ProcessStartInfo DesktopApp(ClaudeSession session) =>
+        new($"claude://resume?session={Uri.EscapeDataString(session.Id)}") { UseShellExecute = true };
 
     public static ProcessStartInfo Explorer(string folder) => new("explorer.exe", Quote(folder)) { UseShellExecute = true };
 
     /// <summary>PowerShell-friendly command that resumes the session from its folder.</summary>
     public static string ResumeCommandText(ClaudeSession session) => $"cd \"{session.Cwd}\"; claude --resume {session.Id}";
+
+    private static void AppendClaudeArgs(StringBuilder args, string claudeArgs, string extraArgs)
+    {
+        args.Append(' ').Append(claudeArgs);
+        if (extraArgs.Length > 0)
+        {
+            args.Append(' ').Append(EscapeForWt(extraArgs));
+        }
+    }
 
     /// <summary><c>wt</c> treats an unescaped <c>;</c> as a separator between its own subcommands.</summary>
     private static string EscapeForWt(string value) => value.Replace(";", "\\;");

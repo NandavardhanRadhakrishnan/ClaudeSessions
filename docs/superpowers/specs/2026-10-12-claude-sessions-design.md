@@ -144,6 +144,9 @@ spaces, is the title search text.
 - **Desktop** — decided by the probe in §7: if a `claude://` URI that opens a specific CLI session is
   found, launch it; otherwise open the Claude desktop app (`claude://`), copy the session ID to the
   clipboard, and show a message: "Claude opened — run /resume and pick '<title>' (session ID copied)".
+  *Probe result (desktop app 2.31226):* `claude://resume?session=<cli-session-uuid>` imports the CLI
+  session into the Code tab (`importCliSession`, as the resume picker does) and navigates to it; an
+  already-imported session is opened. This ships; the clipboard fallback is not needed.
 - **Resume command text** (for copying): `cd "<cwd>"; claude --resume <id>`.
 
 **`Main`**

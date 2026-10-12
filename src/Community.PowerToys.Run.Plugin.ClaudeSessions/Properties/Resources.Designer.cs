@@ -49,9 +49,7 @@ internal static class Resources
 
     internal static string msg_folder_missing => ResourceManager.GetString("msg_folder_missing", Culture)!;
 
-    internal static string msg_desktop_opened_title => ResourceManager.GetString("msg_desktop_opened_title", Culture)!;
 
-    internal static string msg_desktop_opened => ResourceManager.GetString("msg_desktop_opened", Culture)!;
 
     internal static string msg_launch_failed => ResourceManager.GetString("msg_launch_failed", Culture)!;
 
@@ -68,6 +66,14 @@ internal static class Resources
     internal static string setting_open_target_desktop => ResourceManager.GetString("setting_open_target_desktop", Culture)!;
 
     internal static string setting_window_mode => ResourceManager.GetString("setting_window_mode", Culture)!;
+
+    internal static string setting_on_exit => ResourceManager.GetString("setting_on_exit", Culture)!;
+
+    internal static string setting_on_exit_description => ResourceManager.GetString("setting_on_exit_description", Culture)!;
+
+    internal static string setting_on_exit_stay => ResourceManager.GetString("setting_on_exit_stay", Culture)!;
+
+    internal static string setting_on_exit_close => ResourceManager.GetString("setting_on_exit_close", Culture)!;
 
     internal static string setting_window_mode_description => ResourceManager.GetString("setting_window_mode_description", Culture)!;
 

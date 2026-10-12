@@ -87,6 +87,47 @@ public class LaunchCommandTests
     }
 
     [TestMethod]
+    public void CmdShell_KeepsTabOpenAfterExit()
+    {
+        var psi = LaunchCommand.Terminal(Make("t", id: Id), Defaults, fork: false, shell: TerminalShell.Cmd);
+        Assert.IsTrue(psi.Arguments.EndsWith($"--title \"t\" cmd.exe /k claude --resume {Id}", System.StringComparison.Ordinal), psi.Arguments);
+    }
+
+    [TestMethod]
+    public void CmdShell_ClaudePathWithSpaces_FallsBackToName()
+    {
+        var psi = LaunchCommand.Terminal(Make("t", id: Id), Defaults, fork: false, claudeCommand: @"C:\Program Files\claude\claude.exe", shell: TerminalShell.Cmd);
+        StringAssert.Contains(psi.Arguments, $"cmd.exe /k claude --resume {Id}");
+    }
+
+    [TestMethod]
+    public void CmdShell_ExtraArgsSemicolonsStillEscaped()
+    {
+        var psi = LaunchCommand.Terminal(Make("t", id: Id), Defaults with { ExtraArgs = "--x a;b" }, fork: true, shell: TerminalShell.Cmd);
+        Assert.IsTrue(psi.Arguments.EndsWith($"cmd.exe /k claude --resume {Id} --fork-session --x a\\;b", System.StringComparison.Ordinal), psi.Arguments);
+    }
+
+    [DataTestMethod]
+    [DataRow(TerminalShell.WindowsPowerShell, "powershell.exe")]
+    [DataRow(TerminalShell.PowerShellCore, "pwsh.exe")]
+    public void PowerShell_UsesNoExitWithEncodedCommand(TerminalShell shell, string exe)
+    {
+        var psi = LaunchCommand.Terminal(
+            Make("t", id: Id),
+            Defaults with { ExtraArgs = "--model opus; echo hi" },
+            fork: true,
+            claudeCommand: @"C:\It's here\claude.exe",
+            shell: shell);
+
+        var prefix = $"--title \"t\" {exe} -NoExit -EncodedCommand ";
+        var index = psi.Arguments.IndexOf(prefix, System.StringComparison.Ordinal);
+        Assert.IsTrue(index > 0, psi.Arguments);
+        var encoded = psi.Arguments[(index + prefix.Length)..];
+        var command = System.Text.Encoding.Unicode.GetString(System.Convert.FromBase64String(encoded));
+        Assert.AreEqual($"& 'C:\\It''s here\\claude.exe' --resume {Id} --fork-session --model opus; echo hi", command);
+    }
+
+    [TestMethod]
     public void Elevated_UsesRunAsVerb()
     {
         Assert.AreEqual("runas", LaunchCommand.Terminal(Make("t", id: Id), Defaults, fork: false, elevate: true).Verb);
@@ -102,10 +143,10 @@ public class LaunchCommandTests
     }
 
     [TestMethod]
-    public void DesktopApp_OpensClaudeProtocol()
+    public void DesktopApp_UsesResumeDeepLink()
     {
-        var psi = LaunchCommand.DesktopApp();
-        Assert.AreEqual("claude://", psi.FileName);
+        var psi = LaunchCommand.DesktopApp(Make("t", id: Id));
+        Assert.AreEqual($"claude://resume?session={Id}", psi.FileName);
         Assert.IsTrue(psi.UseShellExecute);
     }
 

@@ -153,6 +153,17 @@ public class SessionsApiTests
     }
 
     [TestMethod]
+    public void GetTranscriptPath_ReturnsScannedFile()
+    {
+        var path = WriteSession("p1", IdA);
+        var api = NewApi();
+        api.GetSessions();
+
+        Assert.AreEqual(path, api.GetTranscriptPath(IdA), ignoreCase: true);
+        Assert.IsNull(api.GetTranscriptPath(IdB));
+    }
+
+    [TestMethod]
     public void MissingProjectsDirectory_ReturnsEmpty()
     {
         Directory.Delete(Path.Combine(_home, "projects"));
